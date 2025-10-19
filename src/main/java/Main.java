@@ -7,10 +7,6 @@ import java.util.Scanner;
 
 public class Main {
 
-    public static String[] getPaths() {
-        return System.getenv("PATH").split(File.pathSeparator);
-    }
-
     public static void main(String[] args) throws Exception {
 
         Scanner scanner = new Scanner(System.in);
@@ -49,6 +45,10 @@ public class Main {
                 System.out.println(input[0] + ": command not found");
             }
         }
+    }
+
+    private static String[] getPaths() {
+        return System.getenv("PATH").split(File.pathSeparator);
     }
 
     private static String isInPathAndHasRights(String param) {
