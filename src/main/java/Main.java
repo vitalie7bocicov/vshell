@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
 
 public class Main {
@@ -8,13 +11,20 @@ public class Main {
             System.out.print("$ ");
             String[] input = scanner.nextLine().split(" ");
             String cmd = input[0];
-            String param = input.length > 1 ? input[1] : "";
+            List<String> params = new ArrayList<>(Arrays.asList(input).subList(1, input.length));
 
-            if (cmd.equals("exit")) {
-                return;
+            switch (cmd) {
+                case "exit":  {
+                    return;
+                }
+                case "echo": {
+                    System.out.println(String.join(" ", params));
+                    break;
+                }
+                default: {
+                    System.out.println(input[0] + ": command not found");
+                }
             }
-
-            System.out.println(input[0] + ": command not found");
         }
     }
 }
