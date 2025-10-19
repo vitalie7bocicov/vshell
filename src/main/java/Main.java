@@ -3,6 +3,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
+
 public class Main {
     public static void main(String[] args) throws Exception {
 
@@ -10,20 +11,33 @@ public class Main {
         while (true) {
             System.out.print("$ ");
             String[] input = scanner.nextLine().split(" ");
-            String cmd = input[0];
+            String inputCmd = input[0];
             List<String> params = new ArrayList<>(Arrays.asList(input).subList(1, input.length));
 
-            switch (cmd) {
-                case "exit":  {
-                    return;
+            try {
+                COMMANDS cmd = COMMANDS.fromString(inputCmd);
+                switch (cmd) {
+                    case EXIT:  {
+                        return;
+                    }
+                    case ECHO: {
+                        System.out.println(String.join(" ", params));
+                        break;
+                    }
+                    case TYPE: {
+                        String param = params.getFirst();
+                        if (COMMANDS.isValid(param)) {
+                            System.out.println(param + " is a shell builtin");
+                        } else {
+                            System.out.println(param + ": not found");
+                        }
+                        break;
+                    }
+                    default: {
+                    }
                 }
-                case "echo": {
-                    System.out.println(String.join(" ", params));
-                    break;
-                }
-                default: {
-                    System.out.println(input[0] + ": command not found");
-                }
+            } catch (IllegalAccessException e) {
+                System.out.println(input[0] + ": command not found");
             }
         }
     }
