@@ -41,7 +41,7 @@ public class Main {
                     String execPath = isInPathAndHasRights(inputCmd);
                     if (execPath != null) {
                         List<String> fullCmd = new ArrayList<>();
-                        fullCmd.add(execPath);
+                        fullCmd.add(inputCmd);
                         fullCmd.addAll(params);
                         Executor.execute(fullCmd);
                     }
