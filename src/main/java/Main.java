@@ -44,6 +44,8 @@ public class Main {
                         fullCmd.add(inputCmd);
                         fullCmd.addAll(params);
                         Executor.execute(fullCmd);
+                    } else {
+                        System.out.println(inputCmd + ": command not found");
                     }
                 }
             }
