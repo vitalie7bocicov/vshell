@@ -1,4 +1,5 @@
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -16,33 +17,35 @@ public class Main {
             String inputCmd = input[0];
             List<String> params = new ArrayList<>(Arrays.asList(input).subList(1, input.length));
 
-            try {
-                COMMANDS cmd = COMMANDS.fromString(inputCmd);
-                switch (cmd) {
-                    case EXIT:  {
-                        return;
+            switch (inputCmd) {
+                case "exit":  {
+                    return;
+                }
+                case "echo": {
+                    System.out.println(String.join(" ", params));
+                    break;
+                }
+                case "type": {
+                    String param = params.getFirst();
+                    String execPath;
+                    if (COMMANDS.isValid(param)) {
+                        System.out.println(param + " is a shell builtin");
+                    } else if ((execPath = isInPathAndHasRights(param)) != null) {
+                        System.out.println(param + " is " + execPath);
+                    } else {
+                        System.out.println(param + ": not found");
                     }
-                    case ECHO: {
-                        System.out.println(String.join(" ", params));
-                        break;
-                    }
-                    case TYPE: {
-                        String param = params.getFirst();
-                        String execPath;
-                        if (COMMANDS.isValid(param)) {
-                            System.out.println(param + " is a shell builtin");
-                        } else if ((execPath = isInPathAndHasRights(param)) != null) {
-                            System.out.println(param + " is " + execPath);
-                        } else {
-                            System.out.println(param + ": not found");
-                        }
-                        break;
-                    }
-                    default: {
+                    break;
+                }
+                default: {
+                    String execPath = isInPathAndHasRights(inputCmd);
+                    if (execPath != null) {
+                        List<String> fullCmd = new ArrayList<>();
+                        fullCmd.add(execPath);
+                        fullCmd.addAll(params);
+                        Executor.execute(fullCmd);
                     }
                 }
-            } catch (IllegalAccessException e) {
-                System.out.println(input[0] + ": command not found");
             }
         }
     }

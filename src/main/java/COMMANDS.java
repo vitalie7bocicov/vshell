@@ -1,7 +1,8 @@
 public enum COMMANDS {
     ECHO,
     EXIT,
-    TYPE;
+    TYPE,
+    EXTERNAL;
 
     public static COMMANDS fromString(String text) throws IllegalAccessException {
         for (COMMANDS cmd : COMMANDS.values()) {
@@ -9,7 +10,7 @@ public enum COMMANDS {
                 return cmd;
             }
         }
-        throw new IllegalAccessException("No command with name " + text + " found");
+        return EXTERNAL;
     }
 
     public static boolean isValid(String text) {
