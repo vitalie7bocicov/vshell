@@ -2,6 +2,7 @@ public enum COMMANDS {
     ECHO,
     EXIT,
     TYPE,
+    PWD,
     EXTERNAL;
 
     public static COMMANDS fromString(String text) throws IllegalAccessException {

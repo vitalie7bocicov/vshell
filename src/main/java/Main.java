@@ -1,5 +1,7 @@
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -35,6 +37,11 @@ public class Main {
                     } else {
                         System.out.println(param + ": not found");
                     }
+                    break;
+                }
+                case "pwd": {
+                    String absolutePath = Paths.get("").toAbsolutePath().toString();
+                    System.out.println(absolutePath);
                     break;
                 }
                 default: {
