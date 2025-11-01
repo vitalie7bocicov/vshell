@@ -12,6 +12,10 @@ public class FileUtil {
         return null;
     }
 
+    static String getHomePath() {
+        return System.getenv("HOME");
+    }
+
     private static String fileExistsAndIsExecutable(String name, File file) {
         File[] list = file.listFiles();
         if (list == null) {

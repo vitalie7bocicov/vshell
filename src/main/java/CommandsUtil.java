@@ -31,16 +31,19 @@ public class CommandsUtil {
     }
 
     public static void executeCD(VshellApp shell, List<String> params) {
-        String param = params.getFirst();
-        Path targetPath = shell.currentWorkingDir.resolve(param).normalize();
+        String path = params.getFirst();
+        if (path.equals("~")) {
+            path = FileUtil.getHomePath();
+        }
+        Path targetPath = shell.currentWorkingDir.resolve(path).normalize();
         try {
             if (!Files.isDirectory(targetPath)) {
-                System.out.println("cd: " + param + ": No such file or directory");
+                System.out.println("cd: " + path + ": No such file or directory");
                 return;
             }
             shell.currentWorkingDir = targetPath.toAbsolutePath().normalize();
         } catch (SecurityException e) {
-            System.out.println("cd: " + param + ": Permission denied");
+            System.out.println("cd: " + path + ": Permission denied");
         }
 
     }
