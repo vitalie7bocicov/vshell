@@ -48,9 +48,4 @@ public class VshellApp {
         }
         
     }
-
-    void changeCurrentWorkingDir(Path path) {
-        this.currentWorkingDir = path;
-    }
-
 }
