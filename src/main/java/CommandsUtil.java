@@ -17,7 +17,6 @@ public class CommandsUtil {
                 }
                 fullCmd.add(param);
             }
-            fullCmd.addAll(params);
             ExternalProgramExecutor.execute(fullCmd);
         } else {
             System.out.println(inputCmd + ": command not found");
