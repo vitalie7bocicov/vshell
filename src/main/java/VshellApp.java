@@ -14,15 +14,17 @@ public class VshellApp {
         Scanner scanner = new Scanner(System.in);
         while (true) {
             System.out.print("$ ");
-            String[] input = scanner.nextLine().split(" ");
-            String inputCmd = input[0];
-            List<String> params = new ArrayList<>(Arrays.asList(input).subList(1, input.length));
+            String input = scanner.nextLine();
+            String[] args = input.split("\\s+");
+            String inputCmd = args[0];
+            List<String> params = new ArrayList<>(Arrays.asList(args).subList(1, args.length));
             switch (COMMANDS.fromString(inputCmd)) {
                 case EXIT:  {
                     return;
                 }
                 case ECHO: {
-                    System.out.println(String.join(" ", params));
+                    String param = input.substring(5);
+                    CommandsUtil.executeEcho(param);
                     break;
                 }
                 case TYPE: {

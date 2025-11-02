@@ -1,3 +1,5 @@
+import org.w3c.dom.ls.LSOutput;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -46,5 +48,14 @@ public class CommandsUtil {
             System.out.println("cd: " + path + ": Permission denied");
         }
 
+    }
+
+    public static void executeEcho(String param) {
+        if (param.contains("'")) {
+            param = param.replace("'", "");
+        } else {
+            param = String.join(" ", param.split("\\s+"));
+        }
+        System.out.println(param);
     }
 }
