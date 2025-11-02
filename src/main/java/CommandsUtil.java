@@ -1,5 +1,3 @@
-import org.w3c.dom.ls.LSOutput;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -13,6 +11,12 @@ public class CommandsUtil {
         if (execPath != null) {
             List<String> fullCmd = new ArrayList<>();
             fullCmd.add(inputCmd);
+            for (var param : params) {
+                if (param.contains("'")) {
+                    param = param.replace("'", "");
+                }
+                fullCmd.add(param);
+            }
             fullCmd.addAll(params);
             ExternalProgramExecutor.execute(fullCmd);
         } else {
