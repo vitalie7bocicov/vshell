@@ -6,24 +6,27 @@ import java.util.List;
 
 public class CommandsUtil {
 
-    static void runExternalProgram(String inputCmd, List<String> params) throws IOException, InterruptedException {
+    public static final char SINGLE_QUOTE = '\'';
+
+    static void runExternalProgram(String inputCmd, String rawParams) throws IOException, InterruptedException {
         String execPath = FileUtil.isInPathAndHasRights(inputCmd);
-        if (execPath != null) {
-            List<String> fullCmd = new ArrayList<>();
-            fullCmd.add(inputCmd);
-            for (var param : params) {
-                if (param.contains("'")) {
-                    param = param.replace("'", "");
-                }
-                fullCmd.add(param);
-            }
-            ExternalProgramExecutor.execute(fullCmd);
-        } else {
+        if (execPath == null) {
             System.out.println(inputCmd + ": command not found");
+            return;
         }
+        List<String> fullCmd = new ArrayList<>();
+        fullCmd.add(inputCmd);
+        if (rawParams.isBlank()) {
+            ExternalProgramExecutor.execute(fullCmd);
+            return;
+        }
+        List<String> params = extractParams(rawParams);
+        fullCmd.addAll(params);
+        ExternalProgramExecutor.execute(fullCmd);
     }
 
-    static void executeTypeCmd(List<String> params) {
+
+    static void executeType(List<String> params) {
         String param = params.getFirst();
         String execPath;
         if (!COMMANDS.fromString(param).equals(COMMANDS.EXTERNAL)) {
@@ -60,5 +63,32 @@ public class CommandsUtil {
             param = String.join(" ", param.split("\\s+"));
         }
         System.out.println(param);
+    }
+
+    private static List<String> extractParams(String rawParams) {
+        List<String> params = new ArrayList<>();
+        var sb = new StringBuilder();
+        boolean inQuotes = false;
+        for (int i = 0; i < rawParams.length(); i++) {
+            char c = rawParams.charAt(i);
+            if (SINGLE_QUOTE == c) {
+                inQuotes = !inQuotes;
+            } else if (Character.isWhitespace(c)) {
+                if (inQuotes) {
+                    sb.append(rawParams.charAt(i));
+                } else {
+                    if (!sb.isEmpty()) {
+                        params.add(sb.toString());
+                        sb.setLength(0);
+                    }
+                }
+            } else {
+                sb.append(c);
+            }
+        }
+        if (!sb.isEmpty()) {
+            params.add(sb.toString());
+        }
+        return params;
     }
 }

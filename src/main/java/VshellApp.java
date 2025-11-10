@@ -28,7 +28,7 @@ public class VshellApp {
                     break;
                 }
                 case TYPE: {
-                    CommandsUtil.executeTypeCmd(params);
+                    CommandsUtil.executeType(params);
                     break;
                 }
                 case PWD: {
@@ -40,7 +40,10 @@ public class VshellApp {
                     break;
                 }
                 case EXTERNAL: {
-                    CommandsUtil.runExternalProgram(inputCmd, params);
+                    String paramsText = inputCmd.length() < input.length()
+                            ? input.substring(inputCmd.length() + 1)
+                            : "";
+                    CommandsUtil.runExternalProgram(inputCmd, paramsText);
                     break;
                 }
                 default: {
