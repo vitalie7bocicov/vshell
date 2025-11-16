@@ -7,6 +7,7 @@ import java.util.List;
 public class CommandsUtil {
 
     public static final char SINGLE_QUOTE = '\'';
+    public static final char DOUBLE_QUOTE = '\"';
 
     static void runExternalProgram(String inputCmd, String rawParams) throws IOException, InterruptedException {
         String execPath = FileUtil.isInPathAndHasRights(inputCmd);
@@ -20,7 +21,7 @@ public class CommandsUtil {
             ExternalProgramExecutor.execute(fullCmd);
             return;
         }
-        List<String> params = extractParams(rawParams);
+        List<String> params = tokenize(rawParams);
         fullCmd.addAll(params);
         ExternalProgramExecutor.execute(fullCmd);
     }
@@ -57,24 +58,22 @@ public class CommandsUtil {
     }
 
     public static void executeEcho(String param) {
-        if (param.contains("'")) {
-            param = param.replace("'", "");
-        } else {
-            param = String.join(" ", param.split("\\s+"));
-        }
-        System.out.println(param);
+        System.out.println(String.join(" ", tokenize(param)));
     }
 
-    private static List<String> extractParams(String rawParams) {
+    private static List<String> tokenize(String rawParams) {
         List<String> params = new ArrayList<>();
         var sb = new StringBuilder();
-        boolean inQuotes = false;
+        boolean inSingleQuotes = false;
+        boolean inDoubleQuotes = false;
         for (int i = 0; i < rawParams.length(); i++) {
             char c = rawParams.charAt(i);
-            if (SINGLE_QUOTE == c) {
-                inQuotes = !inQuotes;
+            if (SINGLE_QUOTE == c && !inDoubleQuotes) {
+                inSingleQuotes = !inSingleQuotes;
+            } else if (DOUBLE_QUOTE == c && !inSingleQuotes) {
+                inDoubleQuotes = !inDoubleQuotes;
             } else if (Character.isWhitespace(c)) {
-                if (inQuotes) {
+                if (inSingleQuotes || inDoubleQuotes) {
                     sb.append(rawParams.charAt(i));
                 } else {
                     if (!sb.isEmpty()) {
