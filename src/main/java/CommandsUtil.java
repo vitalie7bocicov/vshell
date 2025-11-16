@@ -8,6 +8,7 @@ public class CommandsUtil {
 
     public static final char SINGLE_QUOTE = '\'';
     public static final char DOUBLE_QUOTE = '\"';
+    public static final char BACKSLASH = '\\';
 
     static void runExternalProgram(String inputCmd, String rawParams) throws IOException, InterruptedException {
         String execPath = FileUtil.isInPathAndHasRights(inputCmd);
@@ -66,13 +67,16 @@ public class CommandsUtil {
         var sb = new StringBuilder();
         boolean inSingleQuotes = false;
         boolean inDoubleQuotes = false;
+        boolean escapeChar = false;
         for (int i = 0; i < rawParams.length(); i++) {
             char c = rawParams.charAt(i);
-            if (SINGLE_QUOTE == c && !inDoubleQuotes) {
+            if (c == BACKSLASH && !inDoubleQuotes && !inSingleQuotes) {
+                escapeChar = true;
+            } else if (SINGLE_QUOTE == c && !inDoubleQuotes && !escapeChar) {
                 inSingleQuotes = !inSingleQuotes;
-            } else if (DOUBLE_QUOTE == c && !inSingleQuotes) {
+            } else if (DOUBLE_QUOTE == c && !inSingleQuotes && !escapeChar) {
                 inDoubleQuotes = !inDoubleQuotes;
-            } else if (Character.isWhitespace(c)) {
+            } else if (Character.isWhitespace(c) && !escapeChar) {
                 if (inSingleQuotes || inDoubleQuotes) {
                     sb.append(rawParams.charAt(i));
                 } else {
@@ -83,6 +87,7 @@ public class CommandsUtil {
                 }
             } else {
                 sb.append(c);
+                escapeChar = false;
             }
         }
         if (!sb.isEmpty()) {
