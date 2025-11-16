@@ -85,6 +85,8 @@ public class CommandsUtil {
                         sb.setLength(0);
                     }
                 }
+            } else if (c == BACKSLASH && inDoubleQuotes && !escapeChar && charIsEscapable(i + 1, rawParams)) {
+                escapeChar = true;
             } else {
                 sb.append(c);
                 escapeChar = false;
@@ -94,5 +96,12 @@ public class CommandsUtil {
             params.add(sb.toString());
         }
         return params;
+    }
+
+    private static boolean charIsEscapable(int i, String rawParams) {
+        if (i >= rawParams.length()) {
+            return false;
+        }
+        return rawParams.charAt(i) == BACKSLASH || rawParams.charAt(i) == DOUBLE_QUOTE;
     }
 }
