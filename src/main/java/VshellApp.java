@@ -40,10 +40,7 @@ public class VshellApp {
                     break;
                 }
                 case EXTERNAL: {
-                    String paramsText = inputCmd.length() < input.length()
-                            ? input.substring(inputCmd.length() + 1)
-                            : "";
-                    CommandsUtil.runExternalProgram(inputCmd, paramsText);
+                    CommandsUtil.runExternalProgram(input);
                     break;
                 }
                 default: {

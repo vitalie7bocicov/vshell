@@ -10,20 +10,22 @@ public class CommandsUtil {
     public static final char DOUBLE_QUOTE = '\"';
     public static final char BACKSLASH = '\\';
 
-    static void runExternalProgram(String inputCmd, String rawParams) throws IOException, InterruptedException {
-        String execPath = FileUtil.isInPathAndHasRights(inputCmd);
+    static void runExternalProgram(String input) throws IOException, InterruptedException {
+        List<String> tokens = tokenize(input);
+        String cmd = tokens.getFirst();
+        tokens = tokens.subList(1, tokens.size());
+        String execPath = FileUtil.isInPathAndHasRights(cmd);
         if (execPath == null) {
-            System.out.println(inputCmd + ": command not found");
+            System.out.println(cmd + ": command not found");
             return;
         }
         List<String> fullCmd = new ArrayList<>();
-        fullCmd.add(inputCmd);
-        if (rawParams.isBlank()) {
+        fullCmd.add(cmd);
+        if (tokens.isEmpty()) {
             ExternalProgramExecutor.execute(fullCmd);
             return;
         }
-        List<String> params = tokenize(rawParams);
-        fullCmd.addAll(params);
+        fullCmd.addAll(tokens);
         ExternalProgramExecutor.execute(fullCmd);
     }
 
