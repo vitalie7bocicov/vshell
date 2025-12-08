@@ -21,13 +21,15 @@ public class CommandsUtil {
             return;
         }
         List<String> fullCmd = new ArrayList<>();
-        fullCmd.add(cmd);
-        if (tokens.isEmpty()) {
-            ExternalProgramExecutor.execute(fullCmd);
+        fullCmd.add(execPath);
+        int redirectIndex = getRedirectTokenIndex(tokens);
+        if (tokens.isEmpty() || redirectIndex == -1) {
+            ExternalProgramExecutor.execute(fullCmd, null);
             return;
         }
-        fullCmd.addAll(tokens);
-        ExternalProgramExecutor.execute(fullCmd);
+        String redirectPath = tokens.get(redirectIndex + 1);
+        fullCmd.addAll(tokens.subList(0, redirectIndex));
+        ExternalProgramExecutor.execute(fullCmd, Path.of(redirectPath));
     }
 
 
