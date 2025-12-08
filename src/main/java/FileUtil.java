@@ -1,4 +1,8 @@
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class FileUtil {
 
@@ -35,4 +39,14 @@ public class FileUtil {
         return System.getenv("PATH").split(File.pathSeparator);
     }
 
+    public static void writeToPath(String location, String output) {
+        Path filePath = Paths.get(location);
+        String newLine = System.lineSeparator();
+        String content = output + newLine;
+        try {
+            Files.writeString(filePath, content);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

@@ -1,6 +1,7 @@
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -61,7 +62,40 @@ public class CommandsUtil {
     }
 
     public static void executeEcho(String param) {
-        System.out.println(String.join(" ", tokenize(param)));
+        List<String> tokens = tokenize(param);
+        int redirectIndex = getRedirectTokenIndex(tokens);
+        if (redirectIndex != -1) {
+            String location = tokens.get(redirectIndex + 1);
+            String output = String.join(" ", tokens.subList(0, redirectIndex));
+            FileUtil.writeToPath(location, output);
+        } else {
+            System.out.println(String.join(" ", tokenize(param)));
+        }
+    }
+
+    private static int getRedirectTokenIndex(List<String> tokens) {
+        for (int i = tokens.size() - 1; i >= 0; i--) {
+            if (tokens.get(i).equals(">") || tokens.get(i).equals("1>")) {
+                if (i == tokens.size() - 1) {
+                    throw new InvalidParameterException("syntax error near unexpected token `newline`");
+                }
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private static String getRedirectedOutput(List<String> tokens) {
+        for (int i = tokens.size() - 2; i >= 0; i--) {
+            if (tokens.get(i).equals(">") || tokens.get(i).equals("1>")) {
+                return tokens.get(i + 1);
+            }
+        }
+        return null;
+    }
+
+    private static boolean isOutputRedirected(List<String> tokens) {
+        return tokens.stream().anyMatch(token -> token.equals(">") || token.equals("1>"));
     }
 
     private static List<String> tokenize(String rawParams) {
