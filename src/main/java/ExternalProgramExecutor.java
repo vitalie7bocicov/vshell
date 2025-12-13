@@ -1,5 +1,7 @@
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -10,13 +12,12 @@ public class ExternalProgramExecutor {
 
         if (redirectFile != null) {
             processBuilder.redirectOutput(redirectFile.toFile());
-            processBuilder.redirectInput(ProcessBuilder.Redirect.from(new File("/dev/null")));
             processBuilder.redirectError(ProcessBuilder.Redirect.INHERIT);
         } else {
             processBuilder.inheritIO();
         }
         Process process = processBuilder.start();
-        process.getOutputStream().close();
+//        process.getOutputStream().close();
         process.waitFor();
     }
 
