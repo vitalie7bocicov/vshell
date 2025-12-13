@@ -10,6 +10,7 @@ public class CommandsUtil {
     public static final char SINGLE_QUOTE = '\'';
     public static final char DOUBLE_QUOTE = '\"';
     public static final char BACKSLASH = '\\';
+    public static final String SPACE = " ";
 
     static void runExternalProgram(String input) throws IOException, InterruptedException {
         List<String> tokens = tokenize(input);
@@ -17,22 +18,29 @@ public class CommandsUtil {
         tokens = tokens.subList(1, tokens.size());
         String execPath = FileUtil.isInPathAndHasRights(cmd);
         if (execPath == null) {
-            System.out.println(cmd + ": command not found");
+            System.err.println(cmd + ": command not found");
             return;
         }
         List<String> fullCmd = new ArrayList<>();
         fullCmd.add(cmd);
-        int redirectIndex = getRedirectTokenIndex(tokens);
-        if (redirectIndex == -1) {
+        int redirectOutIndex = getRedirectOutTokenIndex(tokens);
+        int redirectErrIndex = getRedirectErrTokenIndex(tokens);
+        if (redirectOutIndex == -1 && redirectErrIndex == -1) {
             fullCmd.addAll(tokens);
-            ExternalProgramExecutor.execute(fullCmd, null);
+            ExternalProgramExecutor.execute(fullCmd);
             return;
         }
-        String redirectPath = tokens.get(redirectIndex + 1);
-        fullCmd.addAll(tokens.subList(0, redirectIndex));
-        ExternalProgramExecutor.execute(fullCmd, Path.of(redirectPath));
+        // output redirected
+        if (redirectOutIndex != -1) {
+            String redirectOutPath = tokens.get(redirectOutIndex + 1);
+            fullCmd.addAll(tokens.subList(0, redirectOutIndex));
+            ExternalProgramExecutor.executeWithRedirectedOut(fullCmd, Path.of(redirectOutPath));
+        } else {
+            String redirectErrPath = tokens.get(redirectErrIndex + 1);
+            fullCmd.addAll(tokens.subList(0, redirectErrIndex));
+            ExternalProgramExecutor.executeWithRedirectedErr(fullCmd, Path.of(redirectErrPath));
+        }
     }
-
 
     static void executeType(List<String> params) {
         String param = params.getFirst();
@@ -66,17 +74,27 @@ public class CommandsUtil {
 
     public static void executeEcho(String param) {
         List<String> tokens = tokenize(param);
-        int redirectIndex = getRedirectTokenIndex(tokens);
-        if (redirectIndex != -1) {
-            String location = tokens.get(redirectIndex + 1);
-            String output = String.join(" ", tokens.subList(0, redirectIndex));
+        int redirectOutIndex = getRedirectOutTokenIndex(tokens);
+        int redirectErrIndex = getRedirectErrTokenIndex(tokens);
+        if (redirectOutIndex == -1 && redirectErrIndex == -1) {
+            System.out.println(String.join(SPACE, tokens));
+            return;
+        }
+        String location;
+        String output;
+        if (redirectOutIndex != -1) {
+            location = tokens.get(redirectOutIndex + 1);
+            output = String.join(SPACE, tokens.subList(0, redirectOutIndex));
             FileUtil.writeToPath(location, output);
         } else {
-            System.out.println(String.join(" ", tokenize(param)));
+            location = tokens.get(redirectErrIndex + 1);
+            output = String.join(SPACE, tokens.subList(0, redirectErrIndex));
+            System.out.println(output);
+            FileUtil.createFile(location);
         }
     }
 
-    private static int getRedirectTokenIndex(List<String> tokens) {
+    private static int getRedirectOutTokenIndex(List<String> tokens) {
         for (int i = tokens.size() - 1; i >= 0; i--) {
             if (tokens.get(i).equals(">") || tokens.get(i).equals("1>")) {
                 if (i == tokens.size() - 1) {
@@ -88,17 +106,16 @@ public class CommandsUtil {
         return -1;
     }
 
-    private static String getRedirectedOutput(List<String> tokens) {
-        for (int i = tokens.size() - 2; i >= 0; i--) {
-            if (tokens.get(i).equals(">") || tokens.get(i).equals("1>")) {
-                return tokens.get(i + 1);
+    private static int getRedirectErrTokenIndex(List<String> tokens) {
+        for (int i = tokens.size() - 1; i >= 0; i--) {
+            if (tokens.get(i).equals("2>")) {
+                if (i == tokens.size() - 1) {
+                    throw new InvalidParameterException("syntax error near unexpected token `newline`");
+                }
+                return i;
             }
         }
-        return null;
-    }
-
-    private static boolean isOutputRedirected(List<String> tokens) {
-        return tokens.stream().anyMatch(token -> token.equals(">") || token.equals("1>"));
+        return -1;
     }
 
     private static List<String> tokenize(String rawParams) {

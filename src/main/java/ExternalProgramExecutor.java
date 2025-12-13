@@ -7,18 +7,27 @@ import java.util.List;
 
 public class ExternalProgramExecutor {
 
-    public static void execute(List<String> command, Path redirectFile) throws IOException, InterruptedException {
-        ProcessBuilder processBuilder = new ProcessBuilder(command);
-
-        if (redirectFile != null) {
-            processBuilder.redirectOutput(redirectFile.toFile());
-            processBuilder.redirectError(ProcessBuilder.Redirect.INHERIT);
-        } else {
-            processBuilder.inheritIO();
-        }
+    public static void execute(List<String> cmds) throws IOException, InterruptedException {
+        ProcessBuilder processBuilder = new ProcessBuilder(cmds);
+        processBuilder.inheritIO();
         Process process = processBuilder.start();
-//        process.getOutputStream().close();
         process.waitFor();
     }
 
+
+    public static void executeWithRedirectedOut(List<String> cmds, Path redirectOut) throws IOException, InterruptedException {
+        ProcessBuilder processBuilder = new ProcessBuilder(cmds);
+        processBuilder.redirectOutput(redirectOut.toFile());
+        processBuilder.redirectError(ProcessBuilder.Redirect.INHERIT);
+        Process process = processBuilder.start();
+        process.waitFor();
+    }
+
+    public static void executeWithRedirectedErr(List<String> cmds, Path redirectErr) throws IOException, InterruptedException {
+        ProcessBuilder processBuilder = new ProcessBuilder(cmds);
+        processBuilder.redirectError(redirectErr.toFile());
+        processBuilder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+        Process process = processBuilder.start();
+        process.waitFor();
+    }
 }

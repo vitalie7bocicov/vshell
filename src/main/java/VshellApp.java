@@ -23,7 +23,7 @@ public class VshellApp {
                     return;
                 }
                 case ECHO: {
-                    String param = input.substring(5);
+                    String param = input.substring(inputCmd.length() + 1);
                     CommandsUtil.executeEcho(param);
                     break;
                 }

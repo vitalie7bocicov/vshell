@@ -49,4 +49,12 @@ public class FileUtil {
             throw new RuntimeException(e);
         }
     }
+
+    public static void createFile(String location) {
+        try {
+            Files.createFile(Path.of(location));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
