@@ -1,3 +1,9 @@
+package app;
+
+import model.COMMANDS;
+import executor.BultinCmdExecutor;
+import executor.ExternalCmdExecutor;
+
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -8,9 +14,9 @@ import java.util.Scanner;
 
 public class VshellApp {
 
-    Path currentWorkingDir = Paths.get(System.getProperty("user.dir")).toAbsolutePath().normalize();
+    private Path currentWorkingDir = Paths.get(System.getProperty("user.dir")).toAbsolutePath().normalize();
     
-    public void process() throws IOException, InterruptedException {
+    public void start() throws IOException, InterruptedException {
         Scanner scanner = new Scanner(System.in);
         while (true) {
             System.out.print("$ ");
@@ -24,11 +30,11 @@ public class VshellApp {
                 }
                 case ECHO: {
                     String param = input.substring(inputCmd.length() + 1);
-                    CommandsUtil.executeEcho(param);
+                    BultinCmdExecutor.executeEcho(param);
                     break;
                 }
                 case TYPE: {
-                    CommandsUtil.executeType(params);
+                    BultinCmdExecutor.executeType(params);
                     break;
                 }
                 case PWD: {
@@ -36,11 +42,11 @@ public class VshellApp {
                     break;
                 }
                 case CD: {
-                    CommandsUtil.executeCD(this, params);
+                    BultinCmdExecutor.executeCD(this, params);
                     break;
                 }
                 case EXTERNAL: {
-                    CommandsUtil.runExternalProgram(input);
+                    ExternalCmdExecutor.runExternalProgram(input);
                     break;
                 }
                 default: {
@@ -49,5 +55,13 @@ public class VshellApp {
             }
         }
         
+    }
+
+    public Path getCurrentWorkingDir() {
+        return currentWorkingDir;
+    }
+
+    public void setCurrentWorkingDir(Path currentWorkingDir) {
+        this.currentWorkingDir = currentWorkingDir;
     }
 }

@@ -1,12 +1,16 @@
+package util;
+
+import model.RedirectMode;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 
 public class FileUtil {
 
-    static String isInPathAndHasRights(String param) {
+    public static String isInPathAndHasRights(String param) {
         for (String path : getPaths()) {
             String execPath = fileExistsAndIsExecutable(param, new File(path));
             if (execPath != null) {
@@ -16,7 +20,7 @@ public class FileUtil {
         return null;
     }
 
-    static String getHomePath() {
+    public static String getHomePath() {
         return System.getenv("HOME");
     }
 
@@ -39,22 +43,44 @@ public class FileUtil {
         return System.getenv("PATH").split(File.pathSeparator);
     }
 
-    public static void writeToPath(String location, String output) {
-        Path filePath = Paths.get(location);
+    public static void writeToPath(Path location, String output, RedirectMode redirectMode) {
         String newLine = System.lineSeparator();
         String content = output + newLine;
         try {
-            Files.writeString(filePath, content);
+            createFileIfNotExists(location);
+            switch (redirectMode) {
+                case APPEND -> Files.write(location, content.getBytes(), StandardOpenOption.APPEND);
+                case TRUNCATE -> Files.write(location, content.getBytes(), StandardOpenOption.TRUNCATE_EXISTING);
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public static void createFile(String location) {
+    public static void createFile(Path location) {
         try {
-            Files.createFile(Path.of(location));
+            Files.createFile(location);
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public static void createFileIfNotExists(Path out) {
+        Path parent = out.getParent();
+        if (parent != null && Files.notExists(parent)) {
+            try {
+                Files.createDirectories(parent);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        if (Files.notExists(out)) {
+            try {
+                Files.createFile(out);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
 }
