@@ -17,7 +17,7 @@ public class Tokenizer {
         boolean escapeChar = false;
         for (int i = 0; i < rawParams.length(); i++) {
             char c = rawParams.charAt(i);
-            if (c == BACKSLASH && !inDoubleQuotes && !inSingleQuotes) {
+            if (c == BACKSLASH && !inDoubleQuotes && !inSingleQuotes && !escapeChar) {
                 escapeChar = true;
             } else if (SINGLE_QUOTE == c && !inDoubleQuotes && !escapeChar) {
                 inSingleQuotes = !inSingleQuotes;
