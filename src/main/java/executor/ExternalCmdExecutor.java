@@ -4,6 +4,7 @@ import model.Redirect;
 import model.RedirectMode;
 import util.FileUtil;
 import util.RedirectParser;
+import util.TerminalUtil;
 import util.Tokenizer;
 
 import java.io.IOException;
@@ -14,25 +15,22 @@ import java.util.Optional;
 
 public class ExternalCmdExecutor {
 
-    public static void runExternalProgram(String input) throws IOException, InterruptedException {
-        List<String> fullTokens = Tokenizer.tokenize(input);
-        String cmd = fullTokens.getFirst();
-        List<String> tokens = fullTokens.subList(1, fullTokens.size());
+    public static void runExternalProgram(String cmd, List<String> params) throws IOException, InterruptedException {
         if (FileUtil.isInPathAndHasRights(cmd) == null) {
-            System.err.println(cmd + ": command not found");
+            TerminalUtil.println(cmd + ": command not found");
             return;
         }
         List<String> parsedCmd = new ArrayList<>();
         parsedCmd.add(cmd);
-        Optional<Redirect> redirectOptional = RedirectParser.parse(tokens);
+        Optional<Redirect> redirectOptional = RedirectParser.parse(params);
         if (redirectOptional.isEmpty()) {
-            parsedCmd.addAll(tokens);
+            parsedCmd.addAll(params);
             ExternalCmdExecutor.execute(parsedCmd);
             return;
         }
 
         Redirect redirect = redirectOptional.get();
-        parsedCmd.addAll(tokens.subList(0, redirect.operatorIndex()));
+        parsedCmd.addAll(params.subList(0, redirect.operatorIndex()));
 
         switch (redirect.type()) {
             case STDOUT -> ExternalCmdExecutor.executeWithRedirectedOutput(parsedCmd, redirect.path(), redirect.mode());
@@ -41,10 +39,12 @@ public class ExternalCmdExecutor {
     }
 
     public static void execute(List<String> cmds) throws IOException, InterruptedException {
+        TerminalUtil.resetTerminalMode();
         ProcessBuilder processBuilder = new ProcessBuilder(cmds);
         processBuilder.inheritIO();
         Process process = processBuilder.start();
         process.waitFor();
+        TerminalUtil.setTerminalRawMode();
     }
 
 

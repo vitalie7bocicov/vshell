@@ -3,8 +3,10 @@ package executor;
 import app.VshellApp;
 import model.COMMANDS;
 import model.Redirect;
+import org.xml.sax.helpers.XMLFilterImpl;
 import util.FileUtil;
 import util.RedirectParser;
+import util.TerminalUtil;
 import util.Tokenizer;
 
 import java.nio.file.Files;
@@ -20,11 +22,11 @@ public class BultinCmdExecutor {
         String param = params.getFirst();
         String execPath;
         if (!COMMANDS.fromString(param).equals(COMMANDS.EXTERNAL)) {
-            System.out.println(param + " is a shell builtin");
+            TerminalUtil.println(param + " is a shell builtin");
         } else if ((execPath = FileUtil.isInPathAndHasRights(param)) != null) {
-            System.out.println(param + " is " + execPath);
+            TerminalUtil.println(param + " is " + execPath);
         } else {
-            System.out.println(param + ": not found");
+            TerminalUtil.println(param + ": not found");
         }
     }
 
@@ -36,29 +38,27 @@ public class BultinCmdExecutor {
         Path targetPath = shell.getCurrentWorkingDir().resolve(path).normalize();
         try {
             if (!Files.isDirectory(targetPath)) {
-                System.out.println("cd: " + path + ": No such file or directory");
+                TerminalUtil.println("cd: " + path + ": No such file or directory");
                 return;
             }
             shell.setCurrentWorkingDir(targetPath.toAbsolutePath().normalize());
         } catch (SecurityException e) {
-            System.out.println("cd: " + path + ": Permission denied");
+            TerminalUtil.println("cd: " + path + ": Permission denied");
         }
-
     }
 
-    public static void executeEcho(String param) {
-        List<String> tokens = Tokenizer.tokenize(param);
-        Optional<Redirect> redirectOpt = RedirectParser.parse(tokens);
+    public static void executeEcho(List<String> params) {
+        Optional<Redirect> redirectOpt = RedirectParser.parse(params);
         if (redirectOpt.isEmpty()) {
-            System.out.println(String.join(SPACE, tokens));
+            TerminalUtil.println(String.join(SPACE, params));
             return;
         }
         Redirect redirect = redirectOpt.get();
-        String output = String.join(SPACE, tokens.subList(0, redirect.operatorIndex()));
+        String output = String.join(SPACE, params.subList(0, redirect.operatorIndex()));
         switch (redirect.type()) {
             case STDOUT -> FileUtil.writeToPath(redirect.path(), output, redirect.mode());
             case STDERR -> {
-                System.out.println(output);
+                TerminalUtil.println(output);
                 FileUtil.createFile(redirect.path());
             }
         }
