@@ -18,6 +18,7 @@ public class Autocomplete {
         List<String> completions = trie.getWordsWithPrefix(prefix);
 
         if (completions.isEmpty()) {
+            TerminalUtil.print("\u0007");
             return;
         }
         if (completions.size() == 1) {
