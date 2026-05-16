@@ -13,7 +13,6 @@ public class Autocomplete {
         trie.insert("echo");
         trie.insert("exit");
         for (var exec : FileUtil.getExecutablesFromPathEnv()) {
-            TerminalUtil.println(exec);
             trie.insert(exec);
         }
     }

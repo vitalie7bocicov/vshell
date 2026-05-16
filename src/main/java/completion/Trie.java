@@ -1,12 +1,9 @@
 package completion;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Trie {
-    private final Map<Character, Trie> children = new HashMap<>();
+    private final Map<Character, Trie> children = new TreeMap<>();
     private boolean isWord;
 
     public Trie() {
@@ -21,6 +18,9 @@ public class Trie {
     }
 
     public boolean startsWith(String prefix) {
+        if (prefix == null) {
+            return false;
+        }
         Trie node = this;
         for (char c : prefix.toCharArray()) {
             node = node.children.getOrDefault(c, null);
@@ -32,6 +32,9 @@ public class Trie {
     }
 
     public List<String> getWordsWithPrefix(String prefix) {
+        if (prefix == null) {
+            return new ArrayList<>();
+        }
         List<String> completions = new ArrayList<>();
         Trie node = this;
 
