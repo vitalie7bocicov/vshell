@@ -7,11 +7,15 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class FileUtil {
 
     public static String isInPathAndHasRights(String param) {
-        for (String path : getPaths()) {
+        for (String path : getSystemPathDirectories()) {
             String execPath = fileExistsAndIsExecutable(param, new File(path));
             if (execPath != null) {
                 return execPath;
@@ -20,11 +24,35 @@ public class FileUtil {
         return null;
     }
 
+    public static String[] getSystemPathDirectories() {
+        String pathEnv = System.getenv("PATH");
+        if (pathEnv == null || pathEnv.isEmpty()) {
+            return new String[0];
+        }
+        return pathEnv.split(File.pathSeparator);
+    }
+
     public static String getHomePath() {
         return System.getenv("HOME");
     }
 
-    private static String fileExistsAndIsExecutable(String name, File file) {
+    public static Set<String> getExecutablesFromPathEnv() {
+        Set<String> executables = new HashSet<>();
+        for (String pathDir : getSystemPathDirectories()) {
+            File directory = new File(pathDir);
+            File[] files = directory.listFiles();
+
+            if (files == null) continue;
+            for (var file : files) {
+                if (file.isFile() && file.canExecute()) {
+                    executables.add(file.getName());
+                }
+            }
+        }
+        return executables;
+    }
+
+    public static String fileExistsAndIsExecutable(String name, File file) {
         File[] list = file.listFiles();
         if (list == null) {
             return null;
@@ -37,10 +65,6 @@ public class FileUtil {
             }
         }
         return null;
-    }
-
-    private static String[] getPaths() {
-        return System.getenv("PATH").split(File.pathSeparator);
     }
 
     public static void writeToPath(Path location, String output, RedirectMode redirectMode) {

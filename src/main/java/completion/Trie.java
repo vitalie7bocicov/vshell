@@ -1,10 +1,12 @@
 package completion;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Trie {
-    private Trie[] letters = new Trie[26];
+    private final Map<Character, Trie> children = new HashMap<>();
     private boolean isWord;
 
     public Trie() {
@@ -13,11 +15,7 @@ public class Trie {
     public void insert(String word) {
         Trie node = this;
         for (char c : word.toCharArray()) {
-            int index = c - 'a';
-            if (node.letters[index] == null) {
-                node.letters[index] = new Trie();
-            }
-            node = node.letters[index];
+            node = node.children.computeIfAbsent(c, _ -> new Trie());
         }
         node.isWord = true;
     }
@@ -25,11 +23,10 @@ public class Trie {
     public boolean startsWith(String prefix) {
         Trie node = this;
         for (char c : prefix.toCharArray()) {
-            int index = c - 'a';
-            if (index < 0 || index >= 26 || node.letters[index] == null) {
+            node = node.children.getOrDefault(c, null);
+            if (node == null) {
                 return false;
             }
-            node = node.letters[index];
         }
         return true;
     }
@@ -39,11 +36,10 @@ public class Trie {
         Trie node = this;
 
         for (char c : prefix.toCharArray()) {
-            int index = c - 'a';
-            if (index < 0 || index >= 26 || node.letters[index] == null) {
+            node = node.children.getOrDefault(c, null);
+            if (node == null) {
                 return completions;
             }
-            node = node.letters[index];
         }
 
         dfs(node, new StringBuilder(prefix), completions);
@@ -54,12 +50,10 @@ public class Trie {
         if (node.isWord) {
             completions.add(currentWord.toString());
         }
-        for (int i = 0; i < 26; i++) {
-            if (node.letters[i] != null) {
-                currentWord.append((char) (i + 'a'));
-                dfs(node.letters[i], currentWord, completions);
-                currentWord.deleteCharAt(currentWord.length() - 1);
-            }
+        for (Character ch : node.children.keySet()) {
+            currentWord.append(ch);
+            dfs(node.children.get(ch), currentWord, completions);
+            currentWord.deleteCharAt(currentWord.length() - 1);
         }
     }
 

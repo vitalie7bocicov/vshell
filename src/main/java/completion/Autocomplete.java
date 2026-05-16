@@ -1,5 +1,6 @@
 package completion;
 
+import util.FileUtil;
 import util.TerminalUtil;
 
 import java.util.List;
@@ -11,6 +12,10 @@ public class Autocomplete {
     static {
         trie.insert("echo");
         trie.insert("exit");
+        for (var exec : FileUtil.getExecutablesFromPathEnv()) {
+            TerminalUtil.println(exec);
+            trie.insert(exec);
+        }
     }
 
     public static void handleTabPress(StringBuilder input) {
@@ -26,7 +31,7 @@ public class Autocomplete {
             TerminalUtil.print(suffix);
             input.append(suffix);
         } else {
-            TerminalUtil.println(String.join("\r\n", completions));
+            TerminalUtil.println(String.join(" ", completions));
             TerminalUtil.print("$ " + input);
         }
     }
