@@ -7,7 +7,9 @@ import java.util.List;
 
 public class Autocomplete {
 
-    public static Trie trie = new Trie();
+    private static final Trie trie = new Trie();
+    private static boolean ringSwitch =  false;
+
 
     static {
         trie.insert("echo");
@@ -18,18 +20,19 @@ public class Autocomplete {
     }
 
     public static void handleTabPress(StringBuilder input) {
+        ringSwitch = !ringSwitch;
         String prefix = input.toString();
         List<String> completions = trie.getWordsWithPrefix(prefix);
 
-        if (completions.isEmpty()) {
+        if (ringSwitch) {
             TerminalUtil.print("\u0007");
-            return;
         }
         if (completions.size() == 1) {
             String suffix = completions.getFirst().substring(prefix.length()) + " ";
             TerminalUtil.print(suffix);
             input.append(suffix);
         } else {
+            TerminalUtil.println("$ " + prefix);
             TerminalUtil.println(String.join(" ", completions));
             TerminalUtil.print("$ " + input);
         }

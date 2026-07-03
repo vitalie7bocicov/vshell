@@ -25,7 +25,6 @@ public class VshellApp {
             StringBuilder currentLine = new StringBuilder();
             TerminalUtil.resetLine(currentLine);
             while (true) {
-
                 int input = reader.read();
                 if (input == -1) break;
                 char c = (char) input;

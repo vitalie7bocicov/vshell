@@ -12,7 +12,7 @@ public class Trie {
     public void insert(String word) {
         Trie node = this;
         for (char c : word.toCharArray()) {
-            node = node.children.computeIfAbsent(c, _ -> new Trie());
+            node = node.children.computeIfAbsent(c, t -> new Trie());
         }
         node.isWord = true;
     }
