@@ -32,9 +32,14 @@ public class Autocomplete {
             TerminalUtil.print(suffix);
             input.append(suffix);
         } else {
-            TerminalUtil.println("$ " + prefix);
-            TerminalUtil.println(String.join(" ", completions));
-            TerminalUtil.print("$ " + input);
+            // multiple matches, find the longest common prefix
+            String lcp = LongestCommonPrefix.findLongestCommonPrefix(completions);
+            if (lcp.equals(prefix)) {
+                TerminalUtil.println(String.join(" ", completions));
+                TerminalUtil.print("$ " + lcp);
+            } else {
+                TerminalUtil.print("$ " + lcp);
+            }
         }
     }
 }
