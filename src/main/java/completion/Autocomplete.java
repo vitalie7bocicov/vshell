@@ -34,11 +34,18 @@ public class Autocomplete {
         } else {
             // multiple matches, find the longest common prefix
             String lcp = LongestCommonPrefix.findLongestCommonPrefix(completions);
+            if (lcp.isEmpty()) {
+                TerminalUtil.print("\u0007");
+                return;
+            }
             if (lcp.equals(prefix)) {
+                TerminalUtil.println("");
                 TerminalUtil.println(String.join(" ", completions));
-                TerminalUtil.print("$ " + lcp);
+                TerminalUtil.print("$ " + prefix);
             } else {
-                TerminalUtil.print("$ " + lcp);
+                String suffix = lcp.substring(input.length());
+                TerminalUtil.print(suffix);
+                input.append(suffix);
             }
         }
     }
