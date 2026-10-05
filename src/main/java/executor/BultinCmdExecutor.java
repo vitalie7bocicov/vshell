@@ -9,6 +9,7 @@ import util.RedirectParser;
 import util.TerminalUtil;
 import util.Tokenizer;
 
+import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;

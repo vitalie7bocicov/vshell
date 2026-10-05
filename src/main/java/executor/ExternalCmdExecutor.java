@@ -24,14 +24,6 @@ public class ExternalCmdExecutor {
             TerminalUtil.println(cmd + ": command not found");
             return;
         }
-        if (params.contains(PIPELINE)) {
-            params.addFirst(cmd);
-            int pipeIndex = params.indexOf(PIPELINE);
-            List<String> expr1 = params.subList(0, pipeIndex);
-            List<String> expr2 = params.subList(pipeIndex + 1, params.size());
-            executePipeline(expr1, expr2);
-            return;
-        }
 
         List<String> parsedCmd = new ArrayList<>();
         parsedCmd.add(cmd);
@@ -91,26 +83,5 @@ public class ExternalCmdExecutor {
         processBuilder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
         Process process = processBuilder.start();
         process.waitFor();
-    }
-
-    private static void executePipeline(List<String> expr1, List<String> expr2) throws IOException, InterruptedException {
-        List<ProcessBuilder> processBuilders = List.of(
-                new ProcessBuilder(expr1),
-                new ProcessBuilder(expr2)
-        );
-        TerminalUtil.resetTerminalMode();
-
-        processBuilders.getFirst().redirectInput(ProcessBuilder.Redirect.INHERIT);
-        processBuilders.get(1).redirectOutput(ProcessBuilder.Redirect.INHERIT);
-
-        for (ProcessBuilder processBuilder : processBuilders) {
-            processBuilder.redirectError(ProcessBuilder.Redirect.INHERIT);
-        }
-
-        List<Process> processes = ProcessBuilder.startPipeline(processBuilders);
-        for (Process process : processes) {
-            process.waitFor();
-        }
-        TerminalUtil.setTerminalRawMode();
     }
 }

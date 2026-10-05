@@ -1,6 +1,7 @@
 package app;
 
 import completion.Autocomplete;
+import executor.PipelineExecutor;
 import model.COMMANDS;
 import executor.BultinCmdExecutor;
 import executor.ExternalCmdExecutor;
@@ -12,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.List;
 
 public class VshellApp {
@@ -33,6 +35,16 @@ public class VshellApp {
                     TerminalUtil.println("");
                     String line = currentLine.toString();
                     List<String> params = Tokenizer.tokenize(line);
+                    if (line.contains("|")) {
+                        int index = params.indexOf("|");
+                        List<List<String>> stages = Arrays.asList(
+                                    Arrays.asList(params.subList(0, index).toArray(new String[0])),
+                                    Arrays.asList(params.subList(index + 1, params.size()).toArray(new String[0]))
+                        );
+                        PipelineExecutor.run(this, stages);
+                        TerminalUtil.resetLine(currentLine);
+                        continue;
+                    }
                     if (params.isEmpty()) {
                         TerminalUtil.resetLine(currentLine);
                         continue;
@@ -52,7 +64,7 @@ public class VshellApp {
                             break;
                         }
                         case PWD: {
-                            System.out.println(this.currentWorkingDir);
+                            TerminalUtil.println(currentWorkingDir.toString());
                             break;
                         }
                         case CD: {
