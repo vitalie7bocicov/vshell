@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -36,11 +37,7 @@ public class VshellApp {
                     String line = currentLine.toString();
                     List<String> params = Tokenizer.tokenize(line);
                     if (line.contains("|")) {
-                        int index = params.indexOf("|");
-                        List<List<String>> stages = Arrays.asList(
-                                    Arrays.asList(params.subList(0, index).toArray(new String[0])),
-                                    Arrays.asList(params.subList(index + 1, params.size()).toArray(new String[0]))
-                        );
+                        List<List<String>> stages = extractStages(params);
                         PipelineExecutor.run(this, stages);
                         TerminalUtil.resetLine(currentLine);
                         continue;
@@ -107,6 +104,21 @@ public class VshellApp {
 
     public void setCurrentWorkingDir(Path currentWorkingDir) {
         this.currentWorkingDir = currentWorkingDir;
+    }
+
+    private static List<List<String>> extractStages(List<String> params) {
+        List<List<String>> stages = new ArrayList<>();
+        List<String> current = new ArrayList<>();
+        for (String token : params) {
+            if (token.equals("|")) {
+                stages.add(current);
+                current = new ArrayList<>();
+            } else {
+                current.add(token);
+            }
+        }
+        stages.add(current);
+        return stages;
     }
 
 }
