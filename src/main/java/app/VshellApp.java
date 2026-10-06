@@ -2,6 +2,7 @@ package app;
 
 import completion.Autocomplete;
 import executor.PipelineExecutor;
+import history.History;
 import model.COMMANDS;
 import executor.BultinCmdExecutor;
 import executor.ExternalCmdExecutor;
@@ -22,6 +23,7 @@ public class VshellApp {
     private Path currentWorkingDir = Paths.get(System.getProperty("user.dir")).toAbsolutePath().normalize();
     
     public void start() throws IOException, InterruptedException {
+        History history = new History();
         TerminalUtil.setTerminalRawMode();
         try {
             BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
@@ -35,6 +37,7 @@ public class VshellApp {
                 if (c == '\n' || c == '\r') {
                     TerminalUtil.println("");
                     String line = currentLine.toString();
+                    history.addCommand(line);
                     List<String> params = Tokenizer.tokenize(line);
                     if (line.contains("|")) {
                         List<List<String>> stages = extractStages(params);
@@ -66,6 +69,10 @@ public class VshellApp {
                         }
                         case CD: {
                             BultinCmdExecutor.executeCD(this, params);
+                            break;
+                        }
+                        case HISTORY: {
+                            BultinCmdExecutor.executeHistory(history);
                             break;
                         }
                         case EXTERNAL: {

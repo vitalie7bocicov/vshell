@@ -1,6 +1,7 @@
 package executor;
 
 import app.VshellApp;
+import history.History;
 import model.COMMANDS;
 import model.Redirect;
 import org.xml.sax.helpers.XMLFilterImpl;
@@ -62,6 +63,13 @@ public class BultinCmdExecutor {
                 TerminalUtil.println(output);
                 FileUtil.createFile(redirect.path());
             }
+        }
+    }
+
+    public static void executeHistory(History history) {
+        List<String> commands = history.getHistory();
+        for (int i = 0; i < commands.size(); i++) {
+            TerminalUtil.println((i + 1) + " " + commands.get(i));
         }
     }
 }

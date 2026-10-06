@@ -6,6 +6,7 @@ public enum COMMANDS {
     TYPE,
     PWD,
     CD,
+    HISTORY,
     EXTERNAL;
 
     public static COMMANDS fromString(String text) {
