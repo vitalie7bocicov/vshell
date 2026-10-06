@@ -8,7 +8,7 @@ import java.util.List;
 public class Autocomplete {
 
     private static final Trie trie = new Trie();
-    private static boolean ringSwitch =  false;
+    private static String bellPrefix;
 
 
     static {
@@ -20,33 +20,39 @@ public class Autocomplete {
     }
 
     public static void handleTabPress(StringBuilder input) {
-        ringSwitch = !ringSwitch;
         String prefix = input.toString();
         List<String> completions = trie.getWordsWithPrefix(prefix);
 
-        if (ringSwitch) {
-            TerminalUtil.print("\u0007");
+        if (completions.isEmpty()) {
+            ringBell(prefix);
+            return;
         }
         if (completions.size() == 1) {
             String suffix = completions.getFirst().substring(prefix.length()) + " ";
             TerminalUtil.print(suffix);
             input.append(suffix);
-        } else {
-            // multiple matches, find the longest common prefix
-            String lcp = LongestCommonPrefix.findLongestCommonPrefix(completions);
-            if (lcp.isEmpty()) {
-                TerminalUtil.print("\u0007");
-                return;
-            }
-            if (lcp.equals(prefix)) {
-                TerminalUtil.println("");
-                TerminalUtil.println(String.join(" ", completions));
-                TerminalUtil.print("$ " + prefix);
-            } else {
-                String suffix = lcp.substring(input.length());
-                TerminalUtil.print(suffix);
-                input.append(suffix);
-            }
+            bellPrefix = null;
+            return;
         }
+
+        String lcp = LongestCommonPrefix.findLongestCommonPrefix(completions);
+        if (lcp.length() > prefix.length()) {
+            String suffix = lcp.substring(prefix.length());
+            TerminalUtil.print(suffix);
+            input.append(suffix);
+            bellPrefix = null;
+        } else if (!prefix.equals(bellPrefix)) {
+            ringBell(prefix);
+        } else {
+            TerminalUtil.println("");
+            TerminalUtil.println(String.join(" ", completions));
+            TerminalUtil.print("$ " + prefix);
+            bellPrefix = null;
+        }
+    }
+
+    private static void ringBell(String prefix) {
+        TerminalUtil.print("\u0007");
+        bellPrefix = prefix;
     }
 }
