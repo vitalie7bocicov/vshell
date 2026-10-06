@@ -72,7 +72,8 @@ public class VshellApp {
                             break;
                         }
                         case HISTORY: {
-                            BultinCmdExecutor.executeHistory(history);
+                            int n = params.isEmpty() ? 0 : Integer.parseInt(params.getFirst());
+                            BultinCmdExecutor.executeHistory(history, n);
                             break;
                         }
                         case EXTERNAL: {

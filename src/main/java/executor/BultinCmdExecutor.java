@@ -66,10 +66,11 @@ public class BultinCmdExecutor {
         }
     }
 
-    public static void executeHistory(History history) {
+    public static void executeHistory(History history, int n) {
         List<String> commands = history.getHistory();
-        for (int i = 0; i < commands.size(); i++) {
-            TerminalUtil.println((i + 1) + " " + commands.get(i));
+        int start = n == 0 ? 0 : Math.max(0, commands.size() - n);
+        for (int i = start; i < commands.size(); i++) {
+            TerminalUtil.println("\t" + (i + 1) + " " + commands.get(i));
         }
     }
 }
