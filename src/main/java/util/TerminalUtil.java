@@ -54,7 +54,7 @@ public class TerminalUtil {
 
     public static void resetLine(StringBuilder currentLine) {
         currentLine.setLength(0);
-        System.out.print("\r$ ");
+        System.out.print("\r\u001b[K$ ");
         System.out.flush();
     }
 }

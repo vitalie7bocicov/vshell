@@ -24,6 +24,7 @@ public class VshellApp {
     
     public void start() throws IOException, InterruptedException {
         History history = new History();
+        int historyIndex = 0;
         TerminalUtil.setTerminalRawMode();
         try {
             BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
@@ -38,6 +39,7 @@ public class VshellApp {
                     TerminalUtil.println("");
                     String line = currentLine.toString();
                     history.addCommand(line);
+                    historyIndex = 0;
                     List<String> params = Tokenizer.tokenize(line);
                     if (line.contains("|")) {
                         List<List<String>> stages = extractStages(params);
@@ -92,13 +94,25 @@ public class VshellApp {
                     if (!currentLine.isEmpty()) {
                         currentLine.setLength(currentLine.length() - 1);
                         System.out.print("\b \b");
-                        System.out.flush();
                     }
+                } else if (c == 27) { // ESC
+                    var c2 = reader.read();
+                    if (c2 == '[') {
+                        int c3 = reader.read();
+                        if (c3 == 'A') { // UP ARROW
+                            historyIndex++;
+                            TerminalUtil.resetLine(currentLine);
+                            String cmd = history.getUpArrow(historyIndex);
+                            currentLine.append(cmd);
+                            System.out.print(cmd);
+                        }
+                    }
+
                 } else {
                     currentLine.append(c);
                     System.out.print(c);
-                    System.out.flush();
                 }
+                System.out.flush();
             }
         } finally {
             TerminalUtil.resetTerminalMode();

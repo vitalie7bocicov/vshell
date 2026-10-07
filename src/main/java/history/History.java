@@ -14,4 +14,8 @@ public class History {
     public List<String> getHistory() {
         return history;
     }
+
+    public String getUpArrow(int historyIndex) {
+        return history.get(Math.max(0, history.size() - historyIndex));
+    }
 }
