@@ -105,6 +105,12 @@ public class VshellApp {
                             String cmd = history.getUpArrow(historyIndex);
                             currentLine.append(cmd);
                             System.out.print(cmd);
+                        } else if (c3 == 'B') { // DOWN ARROW
+                            historyIndex--;
+                            TerminalUtil.resetLine(currentLine);
+                            String cmd = history.getDownArrow(historyIndex);
+                            currentLine.append(cmd);
+                            System.out.print(cmd);
                         }
                     }
 

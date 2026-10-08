@@ -18,4 +18,7 @@ public class History {
     public String getUpArrow(int historyIndex) {
         return history.get(Math.max(0, history.size() - historyIndex));
     }
+    public String getDownArrow(int historyIndex) {
+        return history.get(Math.min(history.size() - 1, history.size() - historyIndex));
+    }
 }
